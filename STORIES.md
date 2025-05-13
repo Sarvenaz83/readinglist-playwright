@@ -1,20 +1,45 @@
-#USER STORIES
+# User Stories – Läslistan
 
-## 1. Visa böcker
-Som en användare vill jag kunna se en lista med böcker, så att jag kan välja en bok att läsa eller favoritmarkera.
+## 📚 Story 1: Visa boklistan
+**Som en användare**  
+vill jag kunna se en lista med böcker  
+så att jag kan välja vad jag vill läsa.
 
+- ✅ Testad i scenariot "Räknar alla böcker"
 
-## 2. Favoritmarkera bok
-Som en användare vill jag kunna klicka på ett hjärta för att favoritmarkera en bok, så att jag kan spara den till min favoritlista.
+---
 
-## 3. Ta bort favoritlista
-Som en användare vill jag kunna klicka igen på ett favoritmarkerat hjärta, så att boken tas bort från favoritmarkerat.
+## ❤️ Story 2: Favoritmarkera bok
+**Som en användare**  
+vill jag kunna klicka på ett hjärta för en bok  
+så att boken läggs till i min favoritlista.
 
-## 4. Filtrera på favoriter
-Som en användare vill jag kunna klicka på "Visa favoriter", Så att jag bara ser böcker som jag har favoritmarkerat.
+- ✅ Testad i scenariot "Favoritmarkera en bok från listan"
+- ✅ Scenario Outline för flera klick
 
-## 5. Lägg till ny bok
-Som en användare vill jag kunna skriva in title och författare och klicka på "Lägg till", så att boken läggs till i listan.
+---
 
-## 6. Navigera mellan Vyer
-Som en användare vill jag kunna växla mellan "Alla böcker" och "Mina favoriter", så att jag enkelt kan navigera i sidan.
+## 🤍 Story 3: Avmarkera favorit
+**Som en användare**  
+vill jag kunna klicka en gång till på hjärtat  
+så att boken tas bort från favoritlistan.
+
+- ✅ Testad i Scenario Outline (klick 2 gånger)
+
+---
+
+## 🔁 Story 4: Klicka flera gånger
+**Som en användare**  
+vill jag kunna klicka flera gånger på hjärtat  
+så att jag kan testa att hjärtat växlar mellan markerad och avmarkerad.
+
+- ✅ Scenario Outline (1, 2, 3 klick)
+
+---
+
+## 🧪 Story 5: UI-förändring
+**Som en användare**  
+vill jag att hjärtats utseende ändras när jag klickar  
+så att jag tydligt ser om boken är favorit eller inte.
+
+- ✅ Testad via klass: `star` och `star selected`
