@@ -13,3 +13,15 @@ Scenario: Favoritmarkera en bok från listan
     When jag klickar på hjärtat på den första boken i listan
     Then ska hjärtat ändras till en fylld ikon
     And boken ska finnas i favoritlistan
+
+Scenario Outline: Klicka flera gånger på hjärtat för en bok
+  Given att jag är på webbsidan
+  When jag klickar på hjärtat för boken med index <index> <antal> gånger
+  Then ska hjärtat för boken med index <index> vara <förväntad_status>
+
+Examples:
+  | index | antal | förväntad_status |
+  | 0     | 1     | markerad         |
+  | 0     | 2     | avmarkerad       |
+  | 0     | 3     | markerad         |
+

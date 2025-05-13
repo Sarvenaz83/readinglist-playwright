@@ -17,7 +17,6 @@ def step_impl_open_webbsidan(context):
 def set_impl_count_books(context):
     books = context.readinglist.get_books()
     count = books.count()
-    print(f"[Debug] Antal böcker: {count}")
     assert count > 0, "Inga böcker hittades"
 
 @when("jag klickar på hjärtat på den första boken i listan")
@@ -33,7 +32,6 @@ def step_impl_check_heart_fikked(context):
     page = context.page
     heart_icon = page.locator(".book").first.locator(".star")
     icon_text = heart_icon.inner_text()
-    print(f"[Debug] Ikontext efter klick: {icon_text}")
     assert "❤️" in icon_text, "Ikonen är inte markerad som favorit"
 
 @then("boken ska finnas i favoritlistan")
@@ -46,4 +44,25 @@ def step_impl_check_in_favorites(context):
 
     favorite_books = page.locator(".book")
     assert favorite_books.count() > 0, "Inga böcker i favoritlistan"
+
+@when('jag klickar på hjärtat för boken med index {index:d} {antal:d} gånger')
+def step_impl_click_multiple(context, index, antal):
+    heart_icon = context.readinglist.get_heart_by_index(index)
+    for _ in range(antal):
+        heart_icon.wait_for(state="visible")
+        heart_icon.click()
+        # Väntar på UI-uppdatering mellan klick
+        time.sleep(0.3) 
+
+
+@then('ska hjärtat för boken med index {index:d} vara {status}')
+def step_impl_check_status(context, index, status):
+
+    if status == "markerad":
+        assert context.readinglist.is_heart_filled(index), "Förväntade markerad (❤️) men var inte det"
+    elif status == "avmarkerad":
+        assert context.readinglist.is_heart_empty(index), "Förväntade avmarkerad (🤍) men var fortfarande markerad"
+    else:
+        raise ValueError(f"Okänd status: {status}")
+
     
