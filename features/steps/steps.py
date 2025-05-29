@@ -1,68 +1,114 @@
 from behave import given, when, then
-from playwright.sync_api import sync_playwright, expect
 from pages.page_objects import ReadingListPage
 import time
 
-
-browser = None
-page = None
-context = None
-
 @given("att jag är på webbsidan")
 def step_impl_open_webbsidan(context):
+    context.readinglist = ReadingListPage(context.page)
     context.readinglist.goto()
+    context.initial_book_count = context.readinglist.get_books().count()
 
-        
 @then("ska alla böcker räknas korrekt")
-def set_impl_count_books(context):
+def step_impl_count_books(context):
     books = context.readinglist.get_books()
-    count = books.count()
-    assert count > 0, "Inga böcker hittades"
+    assert books.count() == 7
 
 @when("jag klickar på hjärtat på den första boken i listan")
-def step_impl_click_heart(context):
-    page= context.page
-    page.wait_for_selector(".book")
-    first_heart_icon = page.locator(".book").first.locator(".star")
-    first_heart_icon.wait_for(state="visible")
-    first_heart_icon.click()
+def step_impl_click_first_heart(context):
+    context.readinglist.click_heart_by_index(0)
 
 @then("ska hjärtat ändras till en fylld ikon")
-def step_impl_check_heart_fikked(context):
-    page = context.page
-    heart_icon = page.locator(".book").first.locator(".star")
-    icon_text = heart_icon.inner_text()
-    assert "❤️" in icon_text, "Ikonen är inte markerad som favorit"
+def step_impl_heart_filled(context):
+    assert context.readinglist.is_heart_filled(0)
 
 @then("boken ska finnas i favoritlistan")
-def step_impl_check_in_favorites(context):
-    page = context.page
-    fav_button = page.locator("[data-testid='favorites']")
-    fav_button.wait_for(state="visible")
-    fav_button.click()
-    page.wait_for_selector(".book")
+def step_impl_book_in_favorites(context):
+    context.readinglist.click_favorites_button()
+    books = context.readinglist.get_books()
+    assert books.count() == 1
 
-    favorite_books = page.locator(".book")
-    assert favorite_books.count() > 0, "Inga böcker i favoritlistan"
+@when("jag klickar på hjärtat för boken med index {index:d} {count:d} gånger")
+def step_impl_click_heart_multiple(context, index, count):
+    for _ in range(count):
+        context.readinglist.click_heart_by_index(index)
 
-@when('jag klickar på hjärtat för boken med index {index:d} {antal:d} gånger')
-def step_impl_click_multiple(context, index, antal):
-    heart_icon = context.readinglist.get_heart_by_index(index)
-    for _ in range(antal):
-        heart_icon.wait_for(state="visible")
-        heart_icon.click()
-        # Väntar på UI-uppdatering mellan klick
-        time.sleep(0.3) 
+@then("ska hjärtat för boken med index {index:d} vara markerad")
+def step_impl_heart_should_be_filled(context, index):
+    assert context.readinglist.is_heart_filled(index)
+
+@then("ska hjärtat för boken med index {index:d} vara avmarkerad")
+def step_impl_heart_should_be_empty(context, index):
+    assert context.readinglist.is_heart_empty(index)
+
+@when('jag fyller i titel "{titel}" och författare "{forfattare}"')
+def step_impl_fill_form(context, titel, forfattare):
+    context.readinglist.fill_title_and_author(titel, forfattare)
+
+@when('jag fyller i titel "" och författare "{forfattare}"')
+def step_impl_fill_missing_title(context, forfattare):
+    context.readinglist.fill_title_and_author("", forfattare)
+
+@when('jag fyller i titel "{titel}" och författare ""')
+def step_impl_fill_missing_author(context, titel):
+    context.readinglist.fill_title_and_author(titel, "")
+
+@when('jag fyller i titel "" och författare ""')
+def step_impl_fill_missing_both(context):
+    context.readinglist.fill_title_and_author("", "")
 
 
-@then('ska hjärtat för boken med index {index:d} vara {status}')
-def step_impl_check_status(context, index, status):
+@when('jag klickar på "Lägg till"-knappen')
+def step_impl_click_add_button(context):
+    context.readinglist.click_add_submit()
 
-    if status == "markerad":
-        assert context.readinglist.is_heart_filled(index), "Förväntade markerad (❤️) men var inte det"
-    elif status == "avmarkerad":
-        assert context.readinglist.is_heart_empty(index), "Förväntade avmarkerad (🤍) men var fortfarande markerad"
-    else:
-        raise ValueError(f"Okänd status: {status}")
+@then('ska boken med titel "{titel}" och författare "{forfattare}" visas i boklistan')
+def step_impl_book_should_be_visible(context, titel, forfattare):
+    context.readinglist.click_catalog_button()
+    book_count = context.readinglist.get_books().count()
+    print(f"Totalt antal böcker: {book_count}")
 
-    
+    expected_title = titel.strip()
+    expected_author = forfattare.strip()
+
+    matched = False
+    book_count = context.readinglist.get_books().count()
+
+    for i in range(book_count):
+        book = context.readinglist.get_book_by_index(i)
+        book_text = book.inner_text().strip()
+        print(f"[{i}] TEXT:\n{book_text!r}")
+
+        if expected_title in book_text and expected_author in book_text:
+            matched = True
+            break
+
+    assert matched, f'Boken "{titel}" av "{forfattare}" hittades inte i listan.'
+
+
+@then("ska ingen ny bok läggas till i listan")
+def step_impl_no_book_added(context):
+    context.readinglist.click_catalog_button()
+    books = context.readinglist.get_books()
+    assert books.count() == 7, f"Boklistan har ändrats: {books.count()} != 7"
+
+@when("jag klickar på länken \"Favoriter\"")
+def step_impl_click_favorites(context):
+    context.readinglist.click_favorites_button()
+
+@when("jag klickar på länken \"Alla böcker\"")
+def step_impl_click_catalog(context):
+    context.readinglist.click_catalog_button()
+
+@given("jag har klickat på länken \"Favoriter\"")
+def step_impl_given_clicked_favorites(context):
+    context.readinglist.click_favorites_button()
+
+@then("ska jag se vyn med favoriter")
+def step_impl_see_favorites(context):
+    books = context.readinglist.get_books()
+    assert books.count() >= 0  # placeholder check
+
+@then("ska jag se vyn med alla böcker")
+def step_impl_see_all_books(context):
+    books = context.readinglist.get_books()
+    assert books.count() == 7

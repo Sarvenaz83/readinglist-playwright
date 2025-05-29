@@ -4,15 +4,16 @@ Detta projekt innehåller automatiserade tester för webbsidan [Läslistan](http
 
 ## ✅ Vad som testas
 
-- Visa en lista med böcker
-- Klicka på hjärtat för att favoritmarkera en bok
-- Ta bort en bok från favoritlistan (genom att klicka igen)
-- Kontrollera att hjärtikonen ändras (❤️ / 🤍)
-- Kontrollera att boken finns i/inte finns i favoritlistan
-- Scenario Outline som testar flera klick
-- Räkna antalet böcker i katalogen
+- Visa en lista med böcker (7 st i katalogen)
+- Klicka på hjärtat för att favoritmarkera/avmarkera en bok
+- Kontrollera att bok visas/döljs i favoritlistan
+- Kontrollera att hjärtikonen är markerad (med CSS-klassen `selected`)
+- Scenario Outline som testar flera klick på samma hjärta
+- Lägga till en ny bok med titel och författare
+- Förhindra att tomma böcker läggs till (formuläret är inaktivt om titel/författare saknas)
+- Navigering mellan olika vyer (alla böcker ↔ favoriter)
 
-Se `STORIES.md` för user stories.
+Se `STORIES.md` för user stories och deras koppling till features och scenarion.
 
 ## Hur man startar projektet
 
@@ -40,16 +41,19 @@ behave --no-capture
 ## Strukture
 .
 ├── features/
-│   ├── favoritmarkera.feature
+│   ├── favoritmarkera.feature          # Favoritmarkera/avmarkera bok
+│   ├── lagg_till_bok.feature           # Lägga till ny bok + validering
+│   ├── navigation.feature              # Navigering mellan vyer
 │   ├── environment.py
 │   └── steps/
-│       └── steps.py
+│       └── steps.py                    # Alla stegsdefinitioner
 ├── pages/
-│   └── page_objects.py
+│   └── page_objects.py                 # Page Object för Läslistan
 ├── requirements.txt
-├── STORIES.md
+├── STORIES.md                          # User Stories kopplat till tester
 ├── README.md
 └── exam1_sarvenaz_sinaei.txt
+
 
 
 🧪 Verktyg
